@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SchemeUserState</key>
+	<dict>
+		<key>Bolts.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>FDFullscreenPopGesture.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Parse.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>38DA70389CCC01A8279334BF8042DB7B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>7CD83FFCAA0877C4A3F744E04A8D546F</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>DD006F2DC1FDAD935BB56E0CCF86FD48</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>F0A8400EEEDA063B3ED60403F5DD4D47</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
+</dict>
+</plist>
