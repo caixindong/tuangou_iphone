@@ -61,7 +61,18 @@
 -(void)setupMyHeaderView{
     _myHeaderView = [[FirstVCHeaderView alloc]init];
     _myHeaderView.delegate = self;
-    [_myHeaderView setFrame:CGRectMake(0, 0, WIDTH,HEIGHT/4+20)];
+    float height = 0;
+    NSString* device = [Utils getDeviceName];
+    if ([device isEqualToString:@"4"]) {
+        height = 380;
+    }else if([device isEqualToString:@"5"]){
+        height = 283;
+    }else if ([device isEqualToString:@"6"]){
+        height = 200;
+    }else if ([device isEqualToString:@"6+"]){
+        height = 120;
+    }
+    [_myHeaderView setFrame:CGRectMake(0, 0, WIDTH,height)];
     _myTableView.tableHeaderView = _myHeaderView;
 }
 

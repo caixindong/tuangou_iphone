@@ -66,4 +66,26 @@
     }
     [[MyUserDefault shareUserDefault]storeValue:(NSArray*)newArr withKey:deals];
 }
+
++(NSString *)getDeviceName{
+    int height = (int)[UIScreen mainScreen].bounds.size.height;
+    switch (height) {
+        case 568:
+            return @"5";
+            break;
+        case 667:
+            return @"6";
+            break;
+        case 736:
+            return @"6+";
+            break;
+        case 480:
+            return @"4";
+            break;
+        default:
+            return @"unknown";
+            break;
+    }
+    
+}
 @end

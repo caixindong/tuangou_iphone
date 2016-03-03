@@ -25,4 +25,9 @@
 +(NSArray*_Nonnull)getDeals;
 +(void)addObjectToDeals:(id _Nonnull)obj;
 +(void)removeObjectFromDeals:(id _Nonnull)obj;
+
+/**
+ 获取设备型号
+ **/
++(NSString*)getDeviceName;
 @end
