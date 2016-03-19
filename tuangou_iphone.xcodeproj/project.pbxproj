@@ -1141,7 +1141,7 @@
 					"$(PROJECT_DIR)/tuangou_iphone/3rd",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = /Users/caixindong/Desktop/Github/tuangou_iphone/tuangou_iphone/Config/PrefixHeader.pch;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/tuangou_iphone/Config/PrefixHeader.pch";
 				INFOPLIST_FILE = tuangou_iphone/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
@@ -1193,7 +1193,7 @@
 					"$(PROJECT_DIR)/tuangou_iphone/3rd",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = /Users/caixindong/Desktop/Github/tuangou_iphone/tuangou_iphone/Config/PrefixHeader.pch;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/tuangou_iphone/Config/PrefixHeader.pch";
 				INFOPLIST_FILE = tuangou_iphone/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";

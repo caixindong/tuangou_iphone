@@ -43,6 +43,7 @@
 -(void)setupView{
     _webView.delegate = self;
     _webView.scrollView.showsVerticalScrollIndicator = NO;
+    _webView.allowsLinkPreview = NO;
     NSURLRequest* request = [[NSURLRequest alloc]initWithURL:[NSURL URLWithString:_model.deal_h5_url]];
     [_webView loadRequest:request];
     _webView.hidden = YES;
