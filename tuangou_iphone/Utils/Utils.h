@@ -29,5 +29,5 @@
 /**
  获取设备型号
  **/
-+(NSString*)getDeviceName;
++(NSString*_Nonnull)getDeviceName;
 @end

@@ -42,8 +42,8 @@
 #define collection1 @"collection1"
 #define data1 @"data"
 #define deals @"deals"
-#define WIDTH self.view.frame.size.width
-#define HEIGHT self.view.frame.size.height
+#define WIDTH [UIScreen mainScreen].bounds.size.width
+#define HEIGHT [UIScreen mainScreen].bounds.size.height
 
 #define dealID1 @"dealID1"
 #define dealTitle1 @"dealTitle1"

@@ -54,6 +54,14 @@
 }
 #pragma mark - UIWebViewDelegate
 -(void)webViewDidFinishLoad:(UIWebView *)webView{
+    // 禁用用户选择
+    [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitUserSelect='none';"];
+    
+    // 禁用长按弹出框
+    [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitTouchCallout='none';"];
+    
+    
+    
     [_webView stringByEvaluatingJavaScriptFromString:@"document.getElementsByTagName('header')[0].style.display = 'none';"];
     [_webView stringByEvaluatingJavaScriptFromString:@"document.getElementsByClassName('cost-box')[0].style.display = 'none';"];
     [_webView stringByEvaluatingJavaScriptFromString:@"document.getElementsByClassName('buy-now')[0].style.display = 'none';"];

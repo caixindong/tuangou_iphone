@@ -17,6 +17,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [self checkNetwork];
+    
+    
     //注册Parse
     [Parse setApplicationId:@"sCwFBPUvKc8kYj5fUlymFuAMQr0i8a7XU1AfInRi"
                   clientKey:@"uOqaQENeJ1DywGksV0T8gXUYN0MOB1yrjjeS1G77"];

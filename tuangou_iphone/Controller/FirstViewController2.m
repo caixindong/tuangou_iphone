@@ -24,8 +24,36 @@
 @property(strong,nonatomic)UIButton* requestBtn;
 @property(nonatomic,strong)AMapLocationManager* locationManager;
 @property(nonatomic,strong)UIButton* getMoreBtn;
-
+@property(nonatomic,strong)MJRefreshNormalHeader* header;
 @end
+
+@interface FirstViewController2 (handle)
+/**
+ * 定位
+ **/
+-(void)locateRequest;
+
+/**
+ * 从NSUserDefaults获取城市数据
+ **/
+-(void)getCityInUserDefault;
+
+/**
+ * 向TuanGouViewController发通知
+ **/
+-(void)broadcasttoTuanGouVC;
+
+/**
+ * 检查当前城市是否为所在城市
+ **/
+-(void)checkCurrentCityIsLocatedCity;
+
+/**
+ * 网络请求
+ **/
+-(void)request;
+@end
+
 
 @implementation FirstViewController2
 
@@ -34,20 +62,33 @@
     self.automaticallyAdjustsScrollViewInsets = NO;
     self.tabBarController.tabBar.tintColor = [UIColor colorWithRed:0.16 green:0.76 blue:0.55 alpha:1.0];
     self.tabBarController.view.backgroundColor = [UIColor whiteColor];
+    
     [self locateRequest];
-    [self getUserDefault];
-    [self dataInit];
-    [self setupTableView];
-    [self setupMyHeaderView];
-    [self setupMyFooterView];
+    [self getCityInUserDefault];
+    
+    if (_selectCityName==nil) {
+        _selectCityName = @"广州";
+    }
+    
+    self.myTableView.tableHeaderView = self.myHeaderView;
+    _myTableView.tableFooterView = self.getMoreBtn;
+    [_myTableView addSubview:self.requestBtn];
+    _requestBtn.hidden = YES;
+    _myTableView.header = _header;
+    
     [self request];
-    [self addObserver];
-    [self setupMJRefresh];
     
 }
 
 -(void)viewWillAppear:(BOOL)animated{
     self.navigationController.navigationBarHidden = YES;
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(cityChange:) name:CITYCHANGE1 object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(cityChange2:) name:CITYCHANGE2 object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(cityChange4:) name:CITYCHANGE4 object:nil];
 }
 
 -(void)viewWillDisappear:(BOOL)animated{
@@ -58,62 +99,102 @@
     [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
 
--(void)setupMyHeaderView{
-    _myHeaderView = [[FirstVCHeaderView alloc]init];
-    _myHeaderView.delegate = self;
-    float height = 0;
-    NSString* device = [Utils getDeviceName];
-    if ([device isEqualToString:@"4"]) {
-        height = 380;
-    }else if([device isEqualToString:@"5"]){
-        height = 283;
-    }else if ([device isEqualToString:@"6"]){
-        height = 200;
-    }else if ([device isEqualToString:@"6+"]){
-        height = 120;
-    }
-    [_myHeaderView setFrame:CGRectMake(0, 0, WIDTH,height)];
-    _myTableView.tableHeaderView = _myHeaderView;
+#pragma mark - dpapi delegate
+-(void)request:(DPRequest *)request didFinishLoadingWithResult:(id)result{
+    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    NSDictionary* dict = result;
+    dealModel* md = [[dealModel alloc]init];
+    _tableViewDataSource =  [NSMutableArray arrayWithArray:[md asignModelWithDict:dict]];
+    [_myTableView reloadData];
 }
 
--(void)setupMyFooterView{
-    _getMoreBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, WIDTH, 44)];
-    _getMoreBtn.backgroundColor = [UIColor whiteColor];
-    _getMoreBtn.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
-    [_getMoreBtn setTitle:@"查看全部团购" forState:UIControlStateNormal ];
-    [_getMoreBtn setTitleColor:[UIColor colorWithRed:0.16 green:0.76 blue:0.55 alpha:1.0] forState:UIControlStateNormal];
-    _getMoreBtn.titleLabel.font = [UIFont systemFontOfSize:13];
-    [_getMoreBtn addTarget:self action:@selector(getMore:) forControlEvents:UIControlEventTouchUpInside];
-    _myTableView.tableFooterView = _getMoreBtn;
+-(void)request:(DPRequest *)request didFailWithError:(NSError *)error{
+    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    NSString *estr = [NSString stringWithFormat:@"%@",error];
+    if ([estr containsString:@"Error Domain=Required parameter city is missing"]) {
+        NSLog(@"city is missing");
+    }else if([estr containsString:@"Error Domain=NSURLErrorDomain Code=-1009"]){
+        [_tableViewDataSource removeAllObjects];
+        [_myTableView reloadData];
+        _requestBtn.hidden = NO;
+    }else{
+        NSLog(@"%@",error);
+    }
+}
+
+#pragma mark - UITableViewDataSource
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    _cityLabel.text = _selectCityName;
+    if (_tableViewDataSource.count>0) {
+        _requestBtn.hidden = YES;
+    }
+    [self checkCurrentCityIsLocatedCity];
+    return _tableViewDataSource.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DealTableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:CELLID];
+    dealModel* md = _tableViewDataSource[indexPath.row];
+    [cell showUIWithModel:md];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    return cell;
+}
+
+#pragma mark - UITableViewDelegate
+-(CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return [DealTableViewCell heightOfCell];
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return [DealTableViewCell heightOfCell];
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    dealModel* model = _tableViewDataSource[indexPath.row];
+    DetailViewController* cvc = [self.storyboard instantiateViewControllerWithIdentifier:@"DetailViewController"];
+    cvc.model = model;
+    [self.navigationController pushViewController:cvc animated:YES];
+}
+
+#pragma mark - UISearchBarDelegate
+-(BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar{
+    SearchViewController* svc = [self.storyboard instantiateViewControllerWithIdentifier:@"SearchViewController"];
+    [self.navigationController pushViewController:svc animated:NO];
+    return YES;
+}
+
+#pragma mark - FirstVCHeaderViewDelegate
+-(void)itemClick:(UIButton *)sender{
+    int index = (int)sender.tag-1;
+    NSString* selectCategory = self.itemTitles[index];
+    TuanGouViewController* tvc = [self.storyboard instantiateViewControllerWithIdentifier:@"TuanGouViewController"];
+    [tvc changeCategory:selectCategory andCity:_selectCityName];
+    tvc.myFlag = 1;
+    [self.navigationController pushViewController:tvc animated:YES];
+}
+
+
+#pragma mark - event response
+/**
+ * 城市选择按钮
+ **/
+- (IBAction)cityBtnClick:(UIButton *)sender {
+    CitySelectViewController* csv = [self.storyboard instantiateViewControllerWithIdentifier:@"CitySelectViewController"];
+    [self.navigationController pushViewController:csv animated:YES];
+}
+/**
+ * 定位按钮
+ **/
+- (IBAction)locateBtnClick:(UIButton *)sender {
+    [self locateRequest];
+}
+
+-(void)requestBtnClick:(UIButton*)sender{
+    [self request];
 }
 
 -(void)getMore:(UIButton*)sender{
-     [self.tabBarController setSelectedIndex:1];
-}
-
-#pragma mark - setup 下拉刷新控件
--(void)setupMJRefresh{
-    MJRefreshNormalHeader* header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
-        [self request];
-        [_myTableView.header endRefreshing];
-    }];
-    header.lastUpdatedTimeLabel.hidden = YES;
-    _myTableView.header = header;
-}
-
-#pragma mark - 从NSUserDefaults获取城市数据
--(void)getUserDefault{
-    NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
-    if ([ud stringForKey:cityName1]) {
-        _selectCityName = [ud stringForKey:cityName1];
-    }
-}
-
-#pragma mark - 添加观察者
--(void)addObserver{
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(cityChange:) name:CITYCHANGE1 object:nil];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(cityChange2:) name:CITYCHANGE2 object:nil];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(cityChange4:) name:CITYCHANGE4 object:nil];
+    [self.tabBarController setSelectedIndex:1];
 }
 
 -(void)cityChange:(NSNotification*)noti{
@@ -133,72 +214,85 @@
     [self request];
 }
 
-#pragma mark - 向TuanGouViewController发通知
--(void)broadcasttoTuanGouVC{
-    if (_selectCityName) {
-        [[NSUserDefaults standardUserDefaults]setValue:_selectCityName forKey:cityName1];
-        [[NSNotificationCenter defaultCenter]postNotificationName:CITYCHANGE3 object:nil];
-    }
-}
-
-#pragma mark - 检查当前城市是否为所在城市
--(void)checkCurrentCityIsLocatedCity{
-    NSString* locatedCity = [[NSUserDefaults standardUserDefaults] valueForKey:locatedCity1];
-    if (locatedCity) {
-        if (![_selectCityName isEqualToString:locatedCity]) {
-            UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"" message:[NSString stringWithFormat:@"当前定位的城市为 %@ ,是否切换为 %@ ",locatedCity,locatedCity] preferredStyle:UIAlertControllerStyleAlert];
-            UIAlertAction* changeAction = [UIAlertAction actionWithTitle:@"切换" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                _selectCityName = locatedCity;
-                [self request];
-                [self broadcasttoTuanGouVC];
-            }];
-            UIAlertAction* cancle = [UIAlertAction actionWithTitle:@"再逛逛" style:UIAlertActionStyleDefault handler:nil];
-            [alert addAction:changeAction];
-            [alert addAction:cancle];
-            [self presentViewController:alert animated:YES completion:nil];
-        }
-    }
-}
-
-#pragma mark - 数据初始化
--(void)dataInit{
-    if (_selectCityName==nil) {
-        _selectCityName = @"广州";
-    }
-    _tableViewDataSource = [[NSMutableArray alloc]init];
-    _networkRequest = [[NetworkRequest alloc]initWithDelegate:self];
-    _itemTitles = @[@"美食",@"电影",@"酒店",@"休闲娱乐",@"丽人",@"生活服务",@"购物",@"旅游"];
-}
-
-#pragma mark - 初始化tableView
--(void)setupTableView{
+#pragma mark - getter
+-(UITableView *)myTableView{
     _myTableView.delegate = self;
     _myTableView.dataSource = self;
     [_myTableView registerNib:[UINib nibWithNibName:CELLID bundle:nil] forCellReuseIdentifier:CELLID];
-    _requestBtn = [[UIButton alloc]initWithFrame:CGRectMake((WIDTH-150)/2, 10,150,150)];
-    [_requestBtn setImage:[UIImage imageNamed:@"bg_rotNetwork"] forState:UIControlStateNormal];
-    [_requestBtn addTarget:self action:@selector(requestBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-    [_myTableView addSubview:_requestBtn];
-    _requestBtn.hidden = YES;
+    return _myTableView;
 }
 
--(void)requestBtnClick:(UIButton*)sender{
-    [self request];
+-(FirstVCHeaderView *)myHeaderView{
+    if (!_myHeaderView) {
+        _myHeaderView = [[FirstVCHeaderView alloc]init];
+        _myHeaderView.delegate = self;
+        float height = 0;
+        NSString* device = [Utils getDeviceName];
+        if ([device isEqualToString:@"4"]) {
+            height = 380;
+        }else if([device isEqualToString:@"5"]){
+            height = 283;
+        }else if ([device isEqualToString:@"6"]){
+            height = 200;
+        }else if ([device isEqualToString:@"6+"]){
+            height = 120;
+        }
+        [_myHeaderView setFrame:CGRectMake(0, 0, WIDTH,height)];
+    }
+    return _myHeaderView;
 }
 
-#pragma mark - 网络请求
--(void)request{
-    MBProgressHUD* hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    hud.labelText=@"加载数据中";
-    hud.userInteractionEnabled = NO;
-    NSMutableDictionary* params = [[NSMutableDictionary alloc]init];
-    [params setValue:_selectCityName forKey:city1];
-    [params setValue:@"美食" forKey:category1];
-    params[limit1] = @20;
-    params[sort1] = @1;
-    [_networkRequest requestWithParams:params];
+-(UIButton *)requestBtn{
+    if (!_requestBtn) {
+        _requestBtn = [[UIButton alloc]initWithFrame:CGRectMake((WIDTH-150)/2, 10,150,150)];
+        [_requestBtn setImage:[UIImage imageNamed:@"bg_rotNetwork"] forState:UIControlStateNormal];
+        [_requestBtn addTarget:self action:@selector(requestBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _requestBtn;
 }
-#pragma mark - 定位
+
+-(UIButton *)getMoreBtn{
+    if (!_getMoreBtn) {
+        _getMoreBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, WIDTH, 44)];
+        _getMoreBtn.backgroundColor = [UIColor whiteColor];
+        _getMoreBtn.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
+        [_getMoreBtn setTitle:@"查看全部团购" forState:UIControlStateNormal ];
+        [_getMoreBtn setTitleColor:[UIColor colorWithRed:0.16 green:0.76 blue:0.55 alpha:1.0] forState:UIControlStateNormal];
+        _getMoreBtn.titleLabel.font = [UIFont systemFontOfSize:13];
+        [_getMoreBtn addTarget:self action:@selector(getMore:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _getMoreBtn;
+}
+
+-(MJRefreshNormalHeader *)header{
+    if (!_header) {
+        MJRefreshNormalHeader* header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+            [self request];
+            [_myTableView.header endRefreshing];
+        }];
+        header.lastUpdatedTimeLabel.hidden = YES;
+    }
+    return _header;
+}
+
+-(NetworkRequest *)networkRequest{
+    if (!_networkRequest) {
+        _networkRequest = [[NetworkRequest alloc]initWithDelegate:self];
+    }
+    return _networkRequest;
+}
+
+-(NSArray *)itemTitles{
+    if (!_itemTitles) {
+        _itemTitles = @[@"美食",@"电影",@"酒店",@"休闲娱乐",@"丽人",@"生活服务",@"购物",@"旅游"];
+    }
+    return _itemTitles;
+}
+
+@end
+
+@implementation FirstViewController2 (handle)
+
 -(void)locateRequest{
     self.locationManager = [[AMapLocationManager alloc]init];
     [self.locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];
@@ -219,95 +313,47 @@
     }];
 }
 
-#pragma mark - dpapi delegate
--(void)request:(DPRequest *)request didFinishLoadingWithResult:(id)result{
-    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
-    NSDictionary* dict = result;
-    dealModel* md = [[dealModel alloc]init];
-    _tableViewDataSource = (NSMutableArray*)[md asignModelWithDict:dict];
-    [_myTableView reloadData];
-}
-
--(void)request:(DPRequest *)request didFailWithError:(NSError *)error{
-    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
-    NSString *estr = [NSString stringWithFormat:@"%@",error];
-    if ([estr containsString:@"Error Domain=Required parameter city is missing"]) {
-        NSLog(@"city is missing");
-    }else if([estr containsString:@"Error Domain=NSURLErrorDomain Code=-1009"]){
-        [_tableViewDataSource removeAllObjects];
-        [_myTableView reloadData];
-        _requestBtn.hidden = NO;
-    }else{
-        NSLog(@"%@",error);
+-(void)getCityInUserDefault{
+    NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
+    if ([ud stringForKey:cityName1]) {
+        _selectCityName = [ud stringForKey:cityName1];
     }
 }
 
-#pragma mark - tabelView datasource
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    _cityLabel.text = _selectCityName;
-    if (_tableViewDataSource.count>0) {
-        _requestBtn.hidden = YES;
+-(void)broadcasttoTuanGouVC{
+    if (_selectCityName) {
+        [[NSUserDefaults standardUserDefaults]setValue:_selectCityName forKey:cityName1];
+        [[NSNotificationCenter defaultCenter]postNotificationName:CITYCHANGE3 object:nil];
     }
-    [self checkCurrentCityIsLocatedCity];
-    return _tableViewDataSource.count;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    DealTableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:CELLID];
-    dealModel* md = _tableViewDataSource[indexPath.row];
-    [cell showUIWithModel:md];
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    return cell;
+-(void)checkCurrentCityIsLocatedCity{
+    NSString* locatedCity = [[NSUserDefaults standardUserDefaults] valueForKey:locatedCity1];
+    if (locatedCity) {
+        if (![_selectCityName isEqualToString:locatedCity]) {
+            UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"" message:[NSString stringWithFormat:@"当前定位的城市为 %@ ,是否切换为 %@ ",locatedCity,locatedCity] preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction* changeAction = [UIAlertAction actionWithTitle:@"切换" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                _selectCityName = locatedCity;
+                [self request];
+                [self broadcasttoTuanGouVC];
+            }];
+            UIAlertAction* cancle = [UIAlertAction actionWithTitle:@"再逛逛" style:UIAlertActionStyleDefault handler:nil];
+            [alert addAction:changeAction];
+            [alert addAction:cancle];
+            [self presentViewController:alert animated:YES completion:nil];
+        }
+    }
 }
 
-#pragma mark - tableView delegate
--(CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return [DealTableViewCell heightOfCell];
+-(void)request{
+    MBProgressHUD* hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    hud.labelText=@"加载数据中";
+    hud.userInteractionEnabled = NO;
+    NSMutableDictionary* params = [[NSMutableDictionary alloc]init];
+    [params setValue:_selectCityName forKey:city1];
+    [params setValue:@"美食" forKey:category1];
+    params[limit1] = @20;
+    params[sort1] = @1;
+    [self.networkRequest requestWithParams:params];
 }
-
--(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return [DealTableViewCell heightOfCell];
-}
-
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    dealModel* model = _tableViewDataSource[indexPath.row];
-    DetailViewController* cvc = [self.storyboard instantiateViewControllerWithIdentifier:@"DetailViewController"];
-    cvc.model = model;
-    [self.navigationController pushViewController:cvc animated:YES];
-}
-
-#pragma mark - searchBar delegate
--(BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar{
-    SearchViewController* svc = [self.storyboard instantiateViewControllerWithIdentifier:@"SearchViewController"];
-    [self.navigationController pushViewController:svc animated:NO];
-    return YES;
-}
-
-#pragma mark - FirstVCHeaderViewDelegate
--(void)itemClick:(UIButton *)sender{
-    int index = (int)sender.tag-1;
-    NSString* selectCategory = _itemTitles[index];
-    TuanGouViewController* tvc = [self.storyboard instantiateViewControllerWithIdentifier:@"TuanGouViewController"];
-    [tvc changeCategory:selectCategory andCity:_selectCityName];
-    tvc.myFlag = 1;
-    
-//    CATransition *animation = [CATransition animation];
-//    [animation setDuration:0.8];
-//    [animation setType: @"rippleEffect"];
-//    [animation setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear]];
-//    [self.navigationController.view.layer addAnimation:animation forKey:nil];
-    [self.navigationController pushViewController:tvc animated:YES];
-}
-
-#pragma mark - 城市选择按钮
-- (IBAction)cityBtnClick:(UIButton *)sender {
-    CitySelectViewController* csv = [self.storyboard instantiateViewControllerWithIdentifier:@"CitySelectViewController"];
-    [self.navigationController pushViewController:csv animated:YES];
-}
-
-#pragma mark - 定位按钮
-- (IBAction)locateBtnClick:(UIButton *)sender {
-    [self locateRequest];
-}
-
 @end

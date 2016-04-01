@@ -370,19 +370,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		4E0A594F1C0DB5B20025ED70 /* Common */ = {
-			isa = PBXGroup;
-			children = (
-				4E1CE4F11BEAE41900B4F323 /* BaseViewController.h */,
-				4E1CE4F21BEAE41900B4F323 /* BaseViewController.m */,
-				4EF599821BF044BD0023485F /* MyNavController.h */,
-				4EF599831BF044BD0023485F /* MyNavController.m */,
-				4E23EEF61BF242A0007AFE8E /* AnimationViewController.h */,
-				4E23EEF71BF242A0007AFE8E /* AnimationViewController.m */,
-			);
-			name = Common;
-			sourceTree = "<group>";
-		};
 		4E0A59501C0DB5DC0025ED70 /* Each */ = {
 			isa = PBXGroup;
 			children = (
@@ -580,7 +567,12 @@
 		4E91A7551BDFDBA10069CDD1 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				4E0A594F1C0DB5B20025ED70 /* Common */,
+				4E1CE4F11BEAE41900B4F323 /* BaseViewController.h */,
+				4E1CE4F21BEAE41900B4F323 /* BaseViewController.m */,
+				4EF599821BF044BD0023485F /* MyNavController.h */,
+				4EF599831BF044BD0023485F /* MyNavController.m */,
+				4E23EEF61BF242A0007AFE8E /* AnimationViewController.h */,
+				4E23EEF71BF242A0007AFE8E /* AnimationViewController.m */,
 				4E0A59501C0DB5DC0025ED70 /* Each */,
 				4E9B92D11C113B6300584F21 /* Search */,
 				4E0A59531C0DB6CC0025ED70 /* City */,

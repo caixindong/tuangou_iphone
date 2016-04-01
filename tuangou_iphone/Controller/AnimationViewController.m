@@ -37,6 +37,7 @@
     [UIView commitAnimations];
     [self performSelector:@selector(toNextView) withObject:nil afterDelay:1];
 }
+
 -(void)toNextView{
     UIViewController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"tabBarController"];
     vc.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
