@@ -119,6 +119,8 @@
 		4E91A7461BDFD9FD0069CDD1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4E91A7441BDFD9FD0069CDD1 /* Main.storyboard */; };
 		4E91A74B1BDFD9FD0069CDD1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4E91A7491BDFD9FD0069CDD1 /* LaunchScreen.storyboard */; };
 		4E9FB6851BE308FB00E52076 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E9FB6841BE308FB00E52076 /* SystemConfiguration.framework */; };
+		4EDB419E1CDA27ED00BEF99F /* AMap.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 4EDB419D1CDA27ED00BEF99F /* AMap.bundle */; };
+		4EDB41A01CDA27FD00BEF99F /* AMapNavi.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 4EDB419F1CDA27FD00BEF99F /* AMapNavi.bundle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -320,6 +322,8 @@
 		4E91A74A1BDFD9FD0069CDD1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4E91A74C1BDFD9FD0069CDD1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4E9FB6841BE308FB00E52076 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		4EDB419D1CDA27ED00BEF99F /* AMap.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = AMap.bundle; sourceTree = "<group>"; };
+		4EDB419F1CDA27FD00BEF99F /* AMapNavi.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = AMapNavi.bundle; sourceTree = "<group>"; };
 		56A59F895D67E32C17850E15 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		6E9472E79FB58E75D8E4AED8 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -801,6 +805,8 @@
 		4E8C812E1CDA226900F9F7D1 /* Resource */ = {
 			isa = PBXGroup;
 			children = (
+				4EDB419F1CDA27FD00BEF99F /* AMapNavi.bundle */,
+				4EDB419D1CDA27ED00BEF99F /* AMap.bundle */,
 				4E8C81381CDA228800F9F7D1 /* Assets.xcassets */,
 				4E8C812F1CDA226900F9F7D1 /* PlistData */,
 			);
@@ -990,9 +996,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				4E8C81371CDA226900F9F7D1 /* sorts.plist in Resources */,
+				4EDB41A01CDA27FD00BEF99F /* AMapNavi.bundle in Resources */,
 				4E8C811B1CDA224100F9F7D1 /* FirstVCHeaderView.xib in Resources */,
 				4E8C807C1CDA21FE00F9F7D1 /* MJRefresh.bundle in Resources */,
 				4E91A74B1BDFD9FD0069CDD1 /* LaunchScreen.storyboard in Resources */,
+				4EDB419E1CDA27ED00BEF99F /* AMap.bundle in Resources */,
 				4E8C81351CDA226900F9F7D1 /* cities.plist in Resources */,
 				4E8C81151CDA224100F9F7D1 /* CollectedTableViewCell.xib in Resources */,
 				4E8C81391CDA228800F9F7D1 /* Assets.xcassets in Resources */,
