@@ -318,6 +318,9 @@
     if ([ud stringForKey:cityName1]) {
         _selectCityName = [ud stringForKey:cityName1];
     }
+    if (_selectCityName==nil) {
+        _selectCityName = @"广州";
+    }
 }
 
 -(void)broadcasttoTuanGouVC{
@@ -343,17 +346,19 @@
             [self presentViewController:alert animated:YES completion:nil];
         }
     }
-    if (_selectCityName==nil) {
-        _selectCityName = @"广州";
-    }
+ 
 }
 
 -(void)request{
     MBProgressHUD* hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     hud.labelText=@"加载数据中";
     hud.userInteractionEnabled = NO;
-    NSDictionary* params = @{city1:_selectCityName,category1:@"美食",limit1:@20,sort1:@1};
-    NSMutableDictionary* mulParams = [NSMutableDictionary dictionaryWithDictionary:params];
-    [self.networkRequest requestWithParams:mulParams];
+    NSLog(@"city is %@",_selectCityName);
+    if (_selectCityName) {
+        NSDictionary* params = @{city1:_selectCityName,category1:@"美食",limit1:@20,sort1:@1};
+        NSMutableDictionary* mulParams = [NSMutableDictionary dictionaryWithDictionary:params];
+        [self.networkRequest requestWithParams:mulParams];
+    }
+    
 }
 @end
